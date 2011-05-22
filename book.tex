@@ -1,8 +1,16 @@
 \documentclass[11pt,a4paper,oneside]{book}
 
 \usepackage{fancyhdr}
-\usepackage{verbatim} 
+\usepackage{listings}
+\usepackage{verbatim}
 \usepackage{hyperref}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{caption}
+
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox{gray}{\parbox{\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white}
 
 \setlength{\headheight}{15.2pt}
 \pagestyle{fancy}
@@ -50,15 +58,66 @@ First: What's so bad about Javascript that you need to cover it up with an inter
 
 \item Prototypal inheritance? Just learn it. Or don't use it.
 
-\item `==/===` confusion? `for (var i in something)` breakage? I agree, JS is not a perfect language. I mean, it was only written in 10 days. Is that enough to turn me away from a language? Not really.
+\item \verb!==/===! confusion? \verb!for (var i in something)! breakage? JS is not a perfect language. It was only written in 10 days. Is that enough to shun a language? Not really.
 
 \item Curly brackets? Arguable, if you're really about language aesthetics (I'm not). If you really don't like curly brackets, then just use CoffeeScript, but don't actually write any CoffeeScript code except for indentation.
 
 \end{itemize}
 
-Personally, I think that Javascript is a beautiful language (with maybe a few ugly corners) - but that's an essay for another time.
+Javascript is a beautiful language (with maybe a few ugly corners) - but that's an essay for another time.
 
 The problem with CoffeeScript is simple and inevitable: Cross referencing generated code to Javascript code to CS is really difficult. Debugging is much slower than debugging straight JS.
+
+\chapter{Easy Javascript errors}
+
+%Should it be JavaScript or Javascript?
+
+There are a lot of subtle ways to make mistakes in Javascript.
+
+\section{The in operator}
+
+\begin{lstlisting}[label=forin1,caption=Looks like python.]
+if (5 in [1,2,3]) {
+  //...do stuff
+}
+\end{lstlisting}
+
+The 'in' operator doesn't work on arrays in the way you'd expect.
+
+What's actually going on ? When you ask \verb!x in array!, Javascript considers the array as an object that maps indicies to values, so \verb! 0 in [5,1]! is similar to asking \verb! 0 in {0 : 5, 1 : 1}!. Cool, unless you get tricked by \verb!0 in [0]!.
+
+A better solution to this problem:
+
+\begin{lstlisting}[label=forin2,caption=A solution]
+[1,2,3].indexOf(5) !== -1
+\end{lstlisting}
+
+\subsection{Another trick}
+
+Watch out for stuff like:
+
+\begin{lstlisting}[label=forin3,caption=Same bug.]
+for (x in [1,2,3,4]){
+  //...stuff
+}
+\end{lstlisting}
+
+This fails for the same reason.
+
+\section{parseInt}
+
+\begin{lstlisting}[label=parseint,caption=That 0 looks innocuous enough...]
+console.log(parseInt('08'));
+\end{lstlisting}
+
+Go ahead, try it out. I'll be waiting.
+
+It prints 0! The 0 in front of the 8 indicates that the number is to be parsed as octal. Since 8 is not a valid octal number, it defaults to 0.
+The correct way to use parseInt is to specify the radix as the second parameter. This will always work:
+
+\begin{lstlisting}[label=parseint2,caption=Fixed.]
+console.log(parseInt('08', 10));
+\end{lstlisting}
 
 
 \chapter{Compilers}
